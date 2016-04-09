@@ -107,8 +107,9 @@ BOOL ChangeToFullScreen()
 	if(!EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dmSettings))
 		return FALSE;
 
-	dmSettings.dmPelsWidth	= WND_WIDTH;				// Selected Screen Width
-	dmSettings.dmPelsHeight	= WND_HEIGHT;			// Selected Screen Height
+	// selected screen width and height
+	dmSettings.dmPelsWidth	= WND_WIDTH;
+	dmSettings.dmPelsHeight	= WND_HEIGHT;
 	
 	// This function actually changes the screen to full screen
 	// CDS_FULLSCREEN Gets Rid Of Start Bar.
@@ -146,15 +147,15 @@ BOOL SetupPixelFormat(HDC hdc)
     if (SetPixelFormat(hdc, pixelformat, &pfd) == FALSE) 
 		return FALSE;
  
-    return TRUE;										// Return a success!
+    return TRUE;
 }
 
 VOID SizeOpenGlScreen(int nWidth, int nHeight)
 {
 	if (nHeight == 0)
+	{
 		nHeight = 1;
-
-	
+	}
 
 	glViewport(0, 0, nWidth, nHeight);
 	glMatrixMode(GL_PROJECTION);
@@ -190,29 +191,41 @@ VOID SetFrustum(int nWidth, int nHeight)
 
 VOID LoadTexture(int nId, GLuint* texture)
 {
-	HBITMAP hBMP;    // Handle Of The Bitmap 
-	BITMAP   BMP;    // Bitmap Structure 
+	// bitmap handle
+	HBITMAP hBMP;
+
+	// bitmap struct
+	BITMAP   bmp;
 
 	glGenTextures(1, texture);    // Create The Texture 
-	hBMP = (HBITMAP)LoadImage(GetModuleHandle(NULL), 
+	hBMP = (HBITMAP)LoadImage(
+		GetModuleHandle(NULL), 
 		MAKEINTRESOURCE(nId), 
 		IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION); 
 
-	GetObject(hBMP, sizeof(BMP), &BMP);   // Get The Object 
+	GetObject(hBMP, sizeof(bmp), &bmp); 
 
 	// Pixel Storage Mode (Word Alignment / 4 Bytes) 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); 
 
-	// Typical Texture Generation Using Data From The Bitmap 
-	glBindTexture(GL_TEXTURE_2D, *texture);                        // Bind To The Texture ID 
+	// bind to the texture ID
+	glBindTexture(GL_TEXTURE_2D, *texture); 
 		
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, BMP.bmWidth, BMP.bmHeight, 0, 
-		GL_BGR_EXT, GL_UNSIGNED_BYTE, BMP.bmBits); 
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		3,
+		bmp.bmWidth, bmp.bmHeight,
+		0, 
+		GL_BGR_EXT,
+		GL_UNSIGNED_BYTE,
+		bmp.bmBits
+	); 
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   // Linear Min Filter 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);   // Linear Mag Filter 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
-	DeleteObject(hBMP);    // Delete The Object
+	DeleteObject(hBMP);
 }
 
 HWND CreateWnd(LPTSTR strTitle, int nWidth, int nHeight, DWORD dwStyle, 
@@ -339,13 +352,15 @@ WPARAM MainLoop()
 {
 	MSG msg;
 
-	while(1)											// Do our infinate loop
-	{													// Check if there was a message
+	while(1)
+	{	
+		// Check if there was a message
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
         { 
 			if (!TranslateAccelerator(msg.hwnd, g_hAccelTable, &msg))
 			{
-				if(msg.message == WM_QUIT)					// If the message wasnt to quit
+				// if the message wasn't to quit
+				if(msg.message == WM_QUIT)
 					break;
 
 				// render the scene first if the 
@@ -353,11 +368,15 @@ WPARAM MainLoop()
 				else if (msg.message == RC_CHANGED)
 					RenderScene();
 
-				TranslateMessage(&msg);						// Find out what the message does
-				DispatchMessage(&msg);						// Execute the message
+				// find out what the message does
+				TranslateMessage(&msg);
+
+				// execute the message
+				DispatchMessage(&msg);
 			}
         }
-		else											// if there wasn't a message
+		// if no message
+		else
 		{ 
 			// Do computationally expensive things here.  We want to render the scene
 			// every frame, so we call our rendering function here.  Even though the scene
@@ -367,7 +386,7 @@ WPARAM MainLoop()
         } 
 	}
 
-	return msg.wParam;									// Return from the program
+	return msg.wParam;
 }
 
 VOID RenderScene()
@@ -375,20 +394,15 @@ VOID RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 	glLoadIdentity();									// Reset The View
 	
-
 	CVector3 pos = g_cCamera.GetPosition();
 	CVector3 lookAt = g_cCamera.GetLookAt();
 	CVector3 up = g_cCamera.GetUp();
 
-		// 	  Position      View	   Up Vector
-	gluLookAt(pos.x, pos.y, pos.z,
-			lookAt.x, lookAt.y, lookAt.z,
-			up.x, up.y, up.z);		// This determines where the camera's position and view is
-
-	// The position has an X Y and Z.  Right now, we are standing at (0, 0, 6)
-	// The view also has an X Y and Z.  We are looking at the center of the axis (0, 0, 0)
-	// The up vector is 3D too, so it has an X Y and Z.  We say that up is (0, 1, 0)
-	// Unless you are making a game like Descent(TM), the up vector can stay the same.
+	gluLookAt(
+		pos.x, pos.y, pos.z,
+		lookAt.x, lookAt.y, lookAt.z,
+		up.x, up.y, up.z
+	);
 
 #ifdef _DEBUG
 	// Draw Axis
@@ -432,20 +446,11 @@ VOID RenderScene()
 	//glMaterialfv(GL_FRONT, GL_SHININESS, &shininess);
 
 	RenderRubiksCube();
-		
-												// Below we say that we want to draw triangles		
-	glDisable(GL_LIGHT1);
 
+	glDisable(GL_LIGHT1);
 	glDisable(GL_LIGHTING);
 
-
-	// I arranged the functions like that in code so you could visualize better
-	// where they will be on the screen.  Usually they would each be on their own line
-	// The code above draws a triangle to those points and fills it in.
-	// You can have as many points inside the BEGIN and END, but it must be in three's.
-	// Try GL_LINES or GL_QUADS.  Lines are done in 2's and Quads done in 4's.
-
-	SwapBuffers(g_hDC);									// Swap the backbuffers to the foreground
+	SwapBuffers(g_hDC);
 }
 
 VOID RenderRubiksCube()
@@ -608,7 +613,6 @@ INT GetSelectedObjects(int x, int y, GLsizei buffSize, GLuint* selectBuffer)
 
 	glMatrixMode(GL_MODELVIEW);
 
-	//RenderRubiksCube();
 	RenderScene();
 
 	// restoring the original projection matrix
@@ -617,7 +621,6 @@ INT GetSelectedObjects(int x, int y, GLsizei buffSize, GLuint* selectBuffer)
 	glMatrixMode(GL_MODELVIEW);
 	glFlush();
 	
-	// returning to normal rendering mode
 	return glRenderMode(GL_RENDER);
 }
 

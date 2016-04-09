@@ -9,7 +9,6 @@
 #define HANDLE_RC_CHANGED(hWnd, wParam, lParam, fn) \
 	((fn)((hWnd)), 0L)
 
-void OnPaint(HWND hwnd);
 void OnLButtonDown(HWND hWnd, BOOL fDoubleClick, int x, int y, UINT keyFlags);
 void OnLButtonUp(HWND hWnd, int x, int y, UINT keyFlags);
 void OnDestroy(HWND hWnd);

@@ -52,7 +52,7 @@ CCubeState* CRubiksCube::CreateCube(int x, int y, int z)
 
 	if (x == 0)
 	{
-		left = CColor(255, 165, 0);			// orange
+		left = CColor(255, 165, 0);	// orange
 		right = CColor(0, 0, 0);	// black
 	}
 

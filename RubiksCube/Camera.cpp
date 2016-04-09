@@ -16,8 +16,6 @@ CCamera::~CCamera(void)
 {
 }
 
-
-
 void CCamera::SetDistance(float fDistance)
 {
 	m_fDistance = fDistance;
